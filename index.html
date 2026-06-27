@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイ・ポータル</title>
+    <title>マイ・ポータル1.0a</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -159,10 +159,11 @@
             .card-span-3 { grid-column: span 3; }
         }
     </style>
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <header>
-        <h1>My Portal</h1>
+        <h1>My Portal 1.0a</h1>
         <div style="display: flex; gap: 10px; align-items: center;">
             <div id="current-period" style="background: #007bff; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">判定中...</div>
             <div id="clock" style="font-size: 1rem; font-weight: bold;">00:00:00</div>
@@ -194,6 +195,13 @@
             </div>
 
             <div class="card">
+                <h3>🔗 クイックリンク</h3>
+                <ul style="font-size: 0.95rem; padding-left: 20px; margin: 5px 0;">
+                    <li><a href="https://univ.aichi-pu.ac.jp/uprx/up/pk/pky001/Pky00101.xhtml" target="_blank">UNIPA</a></li>
+                </ul>
+            </div>
+
+            <div class="card"> 
                 <h3>🚨 課題・レポート締切</h3>
                 <div style="display: flex; gap: 5px; margin-bottom: 10px;">
                     <input type="text" id="todo-input" placeholder="例: レポート 7/10まで" style="flex: 1; padding: 5px; font-size: 0.9rem;">
@@ -203,16 +211,12 @@
             </div>
 
             <div class="card">
-                <h3>☀️ 天気情報</h3>
-                <p style="font-size: 0.95rem; margin: 5px 0;">東京の天気: <strong>晴れ 26°C</strong></p>
-                <p style="font-size: 0.95rem; margin: 5px 0;">湿度: 50% / 降水確率: 10%</p>
-            </div>
-
-            <div class="card">
-                <h3>🔗 クイックリンク</h3>
-                <ul style="font-size: 0.95rem; padding-left: 20px; margin: 5px 0;">
-                    <li><a href="https://univ.aichi-pu.ac.jp/uprx/up/pk/pky001/Pky00101.xhtml" target="_blank">UNIPA</a></li>
-                </ul>
+                <h3>☀️ 天気情報（愛知県西部）</h3>
+                <div id="weather-loading" style="font-size: 0.9rem; color: #666;">データを取得中...</div>
+                <div id="weather-info" style="display: none;">
+                    <p style="font-size: 1.1rem; margin: 5px 0;"><span id="weather-mark"></span> <strong id="weather-text">--</strong></p>
+                    <p style="font-size: 0.9rem; color: #555; margin: 5px 0;">今日の風・波: <span id="weather-detail">--</span></p>
+                </div>
             </div>
 
             <div class="card">
@@ -476,6 +480,48 @@
                 }
             }
 
+            // 👑 気象庁の公式データ（API）から愛知県西部の天気を自動取得する関数
+            function fetchWeather() {
+                // 愛知県の地域コード: 230000
+                const url = "https://www.jma.go.jp/bosai/forecast/data/forecast/230000.json";
+                
+                fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // 愛知県西部(名古屋等)のデータのみを抽出
+                    const westernAichiForecast = data[0].timeSeries[0].areas[0];
+                    const weatherText = westernAichiForecast.weathers[0]; // 「晴れ」「曇り」などのテキスト
+                    
+                    // 画面の書き換え
+                    document.getElementById('weather-loading').style.display = 'none';
+                    document.getElementById('weather-info').style.display = 'block';
+                    document.getElementById('weather-text').textContent = weatherText;
+                    
+                    // 風や波の詳細情報
+                    if (data[0].timeSeries[0].areas[0].winds) {
+                        document.getElementById('weather-detail').textContent = data[0].timeSeries[0].areas[0].winds[0];
+                    }
+
+                    // 簡易的なお天気マークの自動判定
+                    let mark = "☀️";
+                    if (weatherText.includes("雨")) {
+                        mark = "☔️";
+                    } else if (weatherText.includes("雪")) {
+                        mark = "☃️";
+                    } else if (weatherText.includes("曇")) {
+                        mark = "☁️";
+                    }
+                    document.getElementById('weather-mark').textContent = mark;
+                })
+                .catch(error => {
+                    console.error("天気データの取得に失敗しました:", error);
+                    document.getElementById('weather-loading').textContent = "天気の取得に失敗しました";
+                });
+            }
+
+            // 初期天気情報を取得
+            fetchWeather();
+
             const selectDay = document.getElementById('search-day');
             const selectPeriod = document.getElementById('search-period');
             const searchResultsList = document.getElementById('search-results-list');
@@ -560,6 +606,60 @@
                 renderTodos();
             }
             renderTodos();
+        });
+
+        // 🔔 ==================== プッシュ通知用の設定 ====================
+            
+        // 1. PWA（ServiceWorker）の登録
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker 登録成功！', reg))
+            .catch(err => console.error('Service Worker 登録失敗', err));
+        }
+
+        // 2. iPhoneに通知の許可を求める関数
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        alert('通知が許可されました！');
+                    }
+                });
+            }
+        }
+
+        // 3. 自分で自分に通知を送る（ローカル擬似プッシュ）関数
+        function sendLocalNotification(title, message) {
+            if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.showNotification(title, {
+                        body: message,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
+                        vibrate: [200, 100, 200] // バイブレーション
+                    });
+                });
+            }
+        }
+
+        // 4. 最初（またはボタンが押された時）に通知を許可してもらう
+        document.body.addEventListener('click', () => {
+            // iPhoneの仕様上、画面をユーザーが1回タップしないと許可ダイアログが出せません
+            if (Notification.permission === 'default') {
+                requestNotificationPermission();
+            }
+        }, { once: true }); // 最初の1回だけ実行
+
+        // 5. 課題追加ボタンが押されたら、通知を飛ばすように改造
+        // (既存の addTodoBtn.addEventListener 内に以下の一行を仕込みます)
+        addTodoBtn.addEventListener('click', () => {
+            if (todoInput.value.trim() !== '') {
+                const taskName = todoInput.value;
+                // --- ここから追加 ---
+                setTimeout(() => {
+                    sendLocalNotification('🚨 新しい課題が登録されました', `締切をチェック: ${taskName}`);
+                }, 1000); // 1秒後に通知が届く
+                // --- ここまで追加 ---
+            }
         });
     </script>
 </body>
