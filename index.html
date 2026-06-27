@@ -9,7 +9,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
-            padding: 20px;
+            padding: 15px; /* スマホ用に余白を少し狭く */
         }
         header {
             display: flex;
@@ -17,24 +17,31 @@
             align-items: center;
             background: #333;
             color: #fff;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.4rem; /* スマホ用にタイトルを少し小さく */
         }
         .tab-container {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto; /* タブがはみ出したら横スクロール可能に */
+            padding-bottom: 5px;
         }
         .tab-btn {
             background: #fff;
             border: 2px solid #007bff;
             color: #007bff;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            white-space: nowrap; /* タブの文字が途中で改行されるのを防ぐ */
             transition: 0.2s;
         }
         .tab-btn.active {
@@ -49,28 +56,34 @@
         }
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
         }
         .card {
             background: #fff;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .card h3 {
             margin-top: 0;
+            font-size: 1.1rem;
             border-bottom: 2px solid #007bff;
             padding-bottom: 5px;
+        }
+        .card h4 {
+            margin-top: 0;
+            font-size: 1rem;
         }
         textarea {
             width: 100%;
             height: 100px;
             box-sizing: border-box;
+            font-size: 0.9rem;
         }
         select {
             padding: 8px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             border-radius: 4px;
             border: 1px solid #ccc;
             background: white;
@@ -79,59 +92,80 @@
             background: #6c757d;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             align-self: flex-end;
             transition: 0.2s;
         }
-        .reset-btn:hover {
-            background: #5a6268;
-        }
 
-        /* 📅 本日の時間割（横並びタイムライン）用のスタイル */
+        /* 📅 本日の時間割（横並びタイムライン）スマホ最適化 */
         .today-timetable-row {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            overflow-x: auto; /* 🌟 スマホで画面からはみ出したら綺麗に横スクロールできるようにする */
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
         }
         .today-slot {
-            flex: 1;
-            min-width: 110px;
+            flex: 0 0 105px; /* 🌟 幅を固定して、縮みきって文字が潰れるのを防ぐ */
             background: #f8f9fa;
             border-left: 4px solid #007bff;
-            padding: 8px;
+            padding: 6px 8px;
             border-radius: 4px;
             box-shadow: inset 0 0 2px rgba(0,0,0,0.05);
         }
-        /* 現在の時限の枠を目立たせる */
         .today-slot.current-active {
             background: #e3f2fd;
             border-left-color: #28a745;
         }
         .today-slot-title {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #666;
             font-weight: bold;
         }
         .today-slot-subject {
-            font-size: 0.95rem;
+            font-size: 0.85rem; /* 🌟 文字サイズを少し縮小 */
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 3px;
             color: #333;
+            word-break: break-all; /* 長い英数字等があっても枠内で改行させる */
+        }
+
+        /* 時間割一覧ページのテーブル用スマホ対応 */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 0.85rem; /* テーブル全体の文字をスマホ用に小さく */
+        }
+
+        /* 📱 画面の横幅が大きいPC用の調整（レスポンシブ） */
+        @media (min-width: 768px) {
+            body { padding: 20px; }
+            header h1 { font-size: 1.8rem; }
+            .card h3 { font-size: 1.25rem; }
+            .today-slot { flex: 1; min-width: 110px; } /* PCなら均等に引き伸ばす */
+            .today-slot-subject { font-size: 0.95rem; }
+            table { font-size: 1rem; }
+            .card-span-2 { grid-column: span 2; }
+            .card-span-3 { grid-column: span 3; }
         }
     </style>
 </head>
 <body>
     <header>
         <h1>My Portal</h1>
-        <div style="display: flex; gap: 20px; align-items: center;">
-            <div id="current-period" style="background: #007bff; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 1.1rem;">判定中...</div>
-            <div id="clock" style="font-size: 1.2rem; font-weight: bold;">00:00:00</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div id="current-period" style="background: #007bff; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">判定中...</div>
+            <div id="clock" style="font-size: 1rem; font-weight: bold;">00:00:00</div>
         </div>
     </header>
 
@@ -144,17 +178,17 @@
     <div id="home-page" class="page-content active">
         <div class="grid-container">
             
-            <div class="card" style="grid-column: span 2;">
+            <div class="card card-span-2">
                 <h3>📅 本日の予定</h3>
                 
                 <div id="today-timetable-container" class="today-timetable-row">
                     </div>
 
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
 
                 <h3>🚪 いま使える空き教室</h3>
-                <p style="color: #666; font-size: 0.85rem; margin-bottom: 10px;">※現在時刻・今日の曜日で空いている教室です</p>
-                <ul id="realtime-rooms-list" style="padding-left: 20px; font-weight: bold; color: #28a745; font-size: 1.1rem; list-style: none; line-height: 1.8; display: flex; gap: 15px; flex-wrap: wrap;">
+                <p style="color: #666; font-size: 0.8rem; margin-bottom: 10px;">※現在時刻・今日の曜日で空いている教室です</p>
+                <ul id="realtime-rooms-list" style="padding-left: 0; font-weight: bold; color: #28a745; font-size: 0.95rem; list-style: none; line-height: 1.8; display: flex; gap: 8px; flex-wrap: wrap; margin: 0;">
                     <li>読み込み中...</li>
                 </ul>
             </div>
@@ -162,21 +196,21 @@
             <div class="card">
                 <h3>🚨 課題・レポート締切</h3>
                 <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-                    <input type="text" id="todo-input" placeholder="例: レポート 7/10まで" style="flex: 1; padding: 5px;">
-                    <button id="add-todo-btn" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">追加</button>
+                    <input type="text" id="todo-input" placeholder="例: レポート 7/10まで" style="flex: 1; padding: 5px; font-size: 0.9rem;">
+                    <button id="add-todo-btn" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">追加</button>
                 </div>
-                <ul id="todo-list" style="list-style: none; padding: 0;"></ul>
+                <ul id="todo-list" style="list-style: none; padding: 0; font-size: 0.9rem;"></ul>
             </div>
 
             <div class="card">
                 <h3>☀️ 天気情報</h3>
-                <p>東京の天気: <strong>晴れ 26°C</strong></p>
-                <p>湿度: 50% / 降水確率: 10%</p>
+                <p style="font-size: 0.95rem; margin: 5px 0;">東京の天気: <strong>晴れ 26°C</strong></p>
+                <p style="font-size: 0.95rem; margin: 5px 0;">湿度: 50% / 降水確率: 10%</p>
             </div>
 
             <div class="card">
                 <h3>🔗 クイックリンク</h3>
-                <ul>
+                <ul style="font-size: 0.95rem; padding-left: 20px; margin: 5px 0;">
                     <li><a href="https://univ.aichi-pu.ac.jp/uprx/up/pk/pky001/Pky00101.xhtml" target="_blank">UNIPA</a></li>
                 </ul>
             </div>
@@ -190,77 +224,78 @@
 
     <div id="timetable-page" class="page-content">
         <div class="grid-container">
-            <div class="card" style="grid-column: span 3;">
+            <div class="card card-span-3">
                 <h3>📅 今期の時間割一覧</h3>
-                <table style="width: 100%; border-collapse: collapse; text-align: center;">
-                    <thead>
-                        <tr style="background-color: #007bff; color: white;">
-                            <th style="padding: 8px;">限</th>
-                            <th style="padding: 8px;">月</th>
-                            <th style="padding: 8px;">火</th>
-                            <th style="padding: 8px;">水</th>
-                            <th style="padding: 8px;">木</th>
-                            <th style="padding: 8px;">金</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 10px; font-weight: bold; background: #eee;">1</td>
-                            <td>ー</td>
-                            <td>情報社会の法と倫理<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
-                            <td>コンピュータリテラシ<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
-                            <td>離散数学1<br><span style="font-size:0.8rem; color:#666;">S101</span></td>
-                            <td>英語1B<br><span style="font-size:0.8rem; color:#666;">B102</span></td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 10px; font-weight: bold; background: #eee;">2</td>
-                            <td>プログラミング1<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
-                            <td>英語1A<br><span style="font-size:0.8rem; color:#666;">B110</span></td>
-                            <td>コンピュータリテラシ<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
-                            <td>ー</td>
-                            <td>PBL1<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 10px; font-weight: bold; background: #eee;">3</td>
-                            <td>ー</td>
-                            <td>ー</td>
-                            <td>ー</td>
-                            <td>微分積分1<br><span style="font-size:0.8rem; color:#666;">S101</span></td>
-                            <td>バレーボール<br><span style="font-size:0.8rem; color:#666;">体育館</span></td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 10px; font-weight: bold; background: #eee;">4</td>
-                            <td>多文化社会への招待C<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
-                            <td>論理回路論<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
-                            <td>ー</td>
-                            <td>線形代数1<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
-                            <td>ー</td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 10px; font-weight: bold; background: #eee;">5</td>
-                            <td>ー</td>
-                            <td>ー</td>
-                            <td>ー</td>
-                            <td>ー</td>
-                            <td>ー</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table style="min-width: 500px;"> <thead>
+                            <tr style="background-color: #007bff; color: white;">
+                                <th style="padding: 6px;">限</th>
+                                <th style="padding: 6px;">月</th>
+                                <th style="padding: 6px;">火</th>
+                                <th style="padding: 6px;">水</th>
+                                <th style="padding: 6px;">木</th>
+                                <th style="padding: 6px;">金</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px; font-weight: bold; background: #eee;">1</td>
+                                <td>ー</td>
+                                <td>情報社会の法と倫理<br><span style="font-size:0.75rem; color:#666;">S201</span></td>
+                                <td>コンピュータリテラシ<br><span style="font-size:0.75rem; color:#666;">演習室5</span></td>
+                                <td>離散数学1<br><span style="font-size:0.75rem; color:#666;">S101</span></td>
+                                <td>英語1B<br><span style="font-size:0.75rem; color:#666;">B102</span></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px; font-weight: bold; background: #eee;">2</td>
+                                <td>プログラミング1<br><span style="font-size:0.75rem; color:#666;">演習室5</span></td>
+                                <td>英語1A<br><span style="font-size:0.75rem; color:#666;">B110</span></td>
+                                <td>コンピュータリテラシ<br><span style="font-size:0.75rem; color:#666;">演習室5</span></td>
+                                <td>ー</td>
+                                <td>PBL1<br><span style="font-size:0.75rem; color:#666;">演習室5</span></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px; font-weight: bold; background: #eee;">3</td>
+                                <td>ー</td>
+                                <td>ー</td>
+                                <td>ー</td>
+                                <td>微分積分1<br><span style="font-size:0.75rem; color:#666;">S101</span></td>
+                                <td>バレーボール<br><span style="font-size:0.75rem; color:#666;">体育館</span></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px; font-weight: bold; background: #eee;">4</td>
+                                <td>多文化社会への招待C<br><span style="font-size:0.75rem; color:#666;">S201</span></td>
+                                <td>論理回路論<br><span style="font-size:0.75rem; color:#666;">S201</span></td>
+                                <td>ー</td>
+                                <td>線形代数1<br><span style="font-size:0.75rem; color:#666;">S201</span></td>
+                                <td>ー</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px; font-weight: bold; background: #eee;">5</td>
+                                <td>ー</td>
+                                <td>ー</td>
+                                <td>ー</td>
+                                <td>ー</td>
+                                <td>ー</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="search-page" class="page-content">
         <div class="grid-container">
-            <div class="card" style="grid-column: span 2;">
+            <div class="card card-span-2">
                 <h3>🔍 条件を指定して空き教室を探す</h3>
-                <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">
-                    調べたい「曜日」と「時限」を選択すると、その時間に授業が入っていない教室がリアルタイムで一覧表示されます。
+                <p style="color: #666; font-size: 0.85rem; margin-bottom: 15px;">
+                    調べたい「曜日」と「時限」を選択すると、一覧表示されます。
                 </p>
                 
-                <div style="display: flex; gap: 15px; margin-bottom: 20px; background: #eee; padding: 15px; border-radius: 6px; align-items: flex-end; flex-wrap: wrap;">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; background: #eee; padding: 12px; border-radius: 6px; align-items: flex-end; flex-wrap: wrap;">
                     <div>
-                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">📅 曜日</label>
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px; font-size: 0.85rem;">📅 曜日</label>
                         <select id="search-day">
                             <option value="月">月曜日</option>
                             <option value="火">火曜日</option>
@@ -270,7 +305,7 @@
                         </select>
                     </div>
                     <div>
-                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">⏰ 時限</label>
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px; font-size: 0.85rem;">⏰ 時限</label>
                         <select id="search-period">
                             <option value="1限">1限</option>
                             <option value="2限">2限</option>
@@ -279,17 +314,16 @@
                             <option value="5限">5限</option>
                         </select>
                     </div>
-                    <button id="reset-to-now-btn" class="reset-btn">🕒 今の時間に戻す</button>
+                    <button id="reset-to-now-btn" class="reset-btn">🕒 今に戻す</button>
                 </div>
 
                 <h4>🚪 該当する空き教室リスト</h4>
-                <ul id="search-results-list" style="padding-left: 20px; font-weight: bold; color: #28a745; font-size: 1.2rem; list-style: none; line-height: 2;"></ul>
+                <ul id="search-results-list" style="padding-left: 20px; font-weight: bold; color: #28a745; font-size: 1.05rem; list-style: none; line-height: 2; margin: 0;"></ul>
             </div>
         </div>
     </div>
 
     <script>
-        // ページ切り替え関数
         function switchPage(pageId) {
             document.querySelectorAll('.page-content').forEach(page => {
                 page.classList.remove('active');
@@ -302,23 +336,20 @@
             event.currentTarget.classList.add('active');
         }
 
-        // 全体の共有変数（現在のステータスを保持）
         let currentGlobalDay = "月";
         let currentGlobalPeriod = "1限";
-        let isSchoolTime = false; // いま授業時間内（月〜金、1〜5限内）かどうか
+        let isSchoolTime = false; 
 
         window.addEventListener('DOMContentLoaded', () => {
             
-            // 👑 あなたが書き直してくれた個人時間割データ（ホームの今日の予定で自動判別するために使用します）
             const myPersonalTimetable = {
-                "月": { "1限": "ー", "2限": "プログラミング1 (演習5)", "3限": "ー", "4限": "多文化社会招待C (S201)", "5限": "ー" },
+                "月": { "1限": "ー", "2限": "プログラミング1 (演習5)", "3限": "ー", "4限": "多文化招待C (S201)", "5限": "ー" },
                 "火": { "1限": "情報社会法倫理 (S201)", "2限": "英語1A (B110)", "3限": "ー", "4限": "論理回路論 (S201)", "5限": "ー" },
                 "水": { "1限": "リテラシ (演習5)", "2限": "リテラシ (演習5)", "3限": "ー", "4限": "ー", "5限": "ー" },
                 "木": { "1限": "離散数学1 (S101)", "2限": "ー", "3限": "微分積分1 (S101)", "4限": "線形代数1 (S201)", "5限": "ー" },
                 "金": { "1限": "英語1B (B102)", "2限": "PBL1 (演習5)", "3限": "バレーボール (体育館)", "4限": "ー", "5限": "ー" }
             };
 
-            // 👑 あなたが書き直してくれた曜日×教室別の時間割データ（マスターデータ）
             const universityTimetable = {
                 "月": [
                     { room: "演習室1", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
@@ -362,15 +393,11 @@
                 ],
             };
 
-            // 1. 時計・ヘッダー時限・ホームの予定一覧と空き教室更新
             function updateHeaderAndRealtimeRooms() {
                 const now = new Date();
-                
-                // 時計
                 const timeString = now.toLocaleTimeString('ja-JP');
                 document.getElementById('clock').textContent = timeString;
 
-                // 時限判定
                 const hours = now.getHours();
                 const minutes = now.getMinutes();
                 const currentMinutes = hours * 60 + minutes;
@@ -397,25 +424,21 @@
                 }
                 document.getElementById('current-period').textContent = `現在: ${currentStatus}`;
 
-                // 曜日取得
                 const dayLabels = ["日", "月", "火", "水", "木", "金", "土"];
                 const todayLabel = dayLabels[now.getDay()]; 
                 
-                // グローバル変数に「今の正しい日時」を記憶しておく
                 currentGlobalDay = todayLabel;
                 currentGlobalPeriod = currentStatus;
                 
-                // 授業時間内（月〜金 かつ 1〜5限）かどうかの判定
                 if (todayLabel !== "日" && todayLabel !== "土" && currentStatus !== "授業時間外") {
                     isSchoolTime = true;
                 } else {
                     isSchoolTime = false;
                 }
 
-                // 👑 ホーム画面に「今日の時間割」を生成して表示
                 const todayTimetableContainer = document.getElementById('today-timetable-container');
                 if (todayLabel === "日" || todayLabel === "土") {
-                    todayTimetableContainer.innerHTML = `<p style="color:#666; margin:0;">本日は休日（${todayLabel}曜日）のため、授業はありません。</p>`;
+                    todayTimetableContainer.innerHTML = `<p style="color:#666; margin:0; font-size:0.9rem;">本日は休日（${todayLabel}曜日）のため授業はありません。</p>`;
                 } else {
                     const todayClasses = myPersonalTimetable[todayLabel];
                     if (todayClasses) {
@@ -423,7 +446,6 @@
                         let htmlString = "";
                         
                         periods.forEach(p => {
-                            // もしいまその時限なら、枠の色を変えるクラスを追加
                             const isActiveClass = (p === currentStatus) ? "current-active" : "";
                             const subject = todayClasses[p] || "ー";
                             
@@ -438,30 +460,28 @@
                     }
                 }
 
-                // ホーム画面の「リアルタイム空き教室」反映
                 const realtimeRoomsList = document.getElementById('realtime-rooms-list');
                 if (!isSchoolTime) {
-                    realtimeRoomsList.innerHTML = `<li style="color: #666; font-weight: normal;">💤 現在は授業時間外（または休日）のため、すべての教室が利用可能か閉館しています。</li>`;
+                    realtimeRoomsList.innerHTML = `<li style="color: #666; font-weight: normal; font-size: 0.9rem;">💤 現在は授業時間外（または休日）です。</li>`;
                 } else {
                     const todaysRooms = universityTimetable[todayLabel];
                     if (todaysRooms) {
                         const emptyRooms = todaysRooms.filter(room => room[currentStatus] === "空き" || room[currentStatus] === "空きI");
                         if (emptyRooms.length > 0) {
-                            realtimeRoomsList.innerHTML = emptyRooms.map(r => `<li style="background:#e8f5e9; padding:4px 10px; border-radius:4px; border:1px solid #c8e6c9;">🟢 ${r.room}</li>`).join('');
+                            realtimeRoomsList.innerHTML = emptyRooms.map(r => `<li style="background:#e8f5e9; padding:4px 8px; border-radius:4px; border:1px solid #c8e6c9; font-size:0.85rem;">🟢 ${r.room}</li>`).join('');
                         } else {
-                            realtimeRoomsList.innerHTML = `<li style="color: #dc3545;">❌ 現在空いている教室はありません</li>`;
+                            realtimeRoomsList.innerHTML = `<li style="color: #dc3545; font-size: 0.9rem;">❌ 現在空いている教室はありません</li>`;
                         }
                     }
                 }
             }
 
-            // 検索ページ用の要素
             const selectDay = document.getElementById('search-day');
             const selectPeriod = document.getElementById('search-period');
             const searchResultsList = document.getElementById('search-results-list');
             const resetBtn = document.getElementById('reset-to-now-btn');
 
-            // 2. 検索用のメイン関数
+            // 検索用のメイン関数
             function searchEmptyRooms() {
                 const chosenDay = selectDay.value;       
                 const chosenPeriod = selectPeriod.value; 
@@ -470,14 +490,13 @@
                 if (todaysRooms) {
                     const emptyRooms = todaysRooms.filter(room => room[chosenPeriod] === "空き" || room[chosenPeriod] === "空きI");
                     if (emptyRooms.length > 0) {
-                        searchResultsList.innerHTML = emptyRooms.map(r => `<li>🟢 ${r.room}</li>`).join('');
+                        searchResultsList.innerHTML = emptyRooms.map(r => `<li style="font-size:0.95rem; margin-bottom:4px;">🟢 ${r.room}</li>`).join('');
                     } else {
-                        searchResultsList.innerHTML = `<li style="color: #dc3545;">❌ 指定された時間は空いている教室がありません</li>`;
+                        searchResultsList.innerHTML = `<li style="color: #dc3545; font-size: 0.95rem;">❌ 指定された時間は空いていません</li>`;
                     }
                 }
             }
 
-            // 検索ボックスの「初期選択」を設定する関数
             function setInitialSearchSelection() {
                 if (isSchoolTime) {
                     selectDay.value = currentGlobalDay;
@@ -489,20 +508,12 @@
                 searchEmptyRooms();
             }
 
-            // セレクトボックスの変更イベント
             selectDay.addEventListener('change', searchEmptyRooms);
             selectPeriod.addEventListener('change', searchEmptyRooms);
-            
-            // 「今に戻す」ボタンのクリックイベント
-            resetBtn.addEventListener('click', () => {
-                setInitialSearchSelection();
-            });
+            resetBtn.addEventListener('click', setInitialSearchSelection);
 
-            // 初回実行
             updateHeaderAndRealtimeRooms(); 
             setInitialSearchSelection();     
-
-            // 毎秒時計などを更新するタイマー
             setInterval(updateHeaderAndRealtimeRooms, 1000);
 
             // メモ機能
@@ -524,10 +535,11 @@
                     const li = document.createElement('li');
                     li.style.display = 'flex';
                     li.style.justify = 'space-between';
+                    li.style.alignItems = 'center';
                     li.style.marginBottom = '8px';
                     li.innerHTML = `
-                        <span>📝 ${todo}</span>
-                        <button onclick="deleteTodo(${index})" style="background:#dc3545; color:white; border:none; padding:2px 6px; border-radius:4px; cursor:pointer;">完了</button>
+                        <span style="word-break: break-all; margin-right: 10px;">📝 ${todo}</span>
+                        <button onclick="deleteTodo(${index})" style="background:#dc3545; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.8rem; flex-shrink:0;">完了</button>
                     `;
                     todoList.appendChild(li);
                 });
