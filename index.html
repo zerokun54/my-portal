@@ -608,7 +608,7 @@
             renderTodos();
         });
 
-        // 🔔 ==================== プッシュ通知用の設定 ====================
+        // 🔔 ==================== プッシュ通知用の設定（iOS完全対応版） ====================
             
         // 1. PWA（ServiceWorker）の登録
         if ('serviceWorker' in navigator) {
@@ -622,43 +622,41 @@
             if ('Notification' in window) {
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
-                        alert('通知が許可されました！');
+                        alert('通知が許可されました！この画面のまま、一度課題を追加してみてください。');
                     }
                 });
             }
         }
 
-        // 3. 自分で自分に通知を送る（ローカル擬似プッシュ）関数
+        // 3. 自分で自分に通知を送る関数（iOSはユーザーアクション直下のみ許可）
         function sendLocalNotification(title, message) {
             if ('serviceWorker' in navigator && Notification.permission === 'granted') {
                 navigator.serviceWorker.ready.then(registration => {
                     registration.showNotification(title, {
                         body: message,
                         icon: 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png',
-                        vibrate: [200, 100, 200] // バイブレーション
+                        vibrate: [200, 100, 200]
                     });
+                }).catch(err => {
+                    console.error('通知の送信に失敗:', err);
                 });
             }
         }
 
-        // 4. 最初（またはボタンが押された時）に通知を許可してもらう
+        // 4. 最初（または画面がタップされた時）に通知の許可を求める
         document.body.addEventListener('click', () => {
-            // iPhoneの仕様上、画面をユーザーが1回タップしないと許可ダイアログが出せません
             if (Notification.permission === 'default') {
                 requestNotificationPermission();
             }
-        }, { once: true }); // 最初の1回だけ実行
+        }, { once: true });
 
-        // 5. 課題追加ボタンが押されたら、通知を飛ばすように改造
-        // (既存の addTodoBtn.addEventListener 内に以下の一行を仕込みます)
+        // 5. 【超重要】課題追加ボタンが押された「直後」に、時間を置かずにすぐ通知を呼ぶ
         addTodoBtn.addEventListener('click', () => {
             if (todoInput.value.trim() !== '') {
                 const taskName = todoInput.value;
-                // --- ここから追加 ---
-                setTimeout(() => {
-                    sendLocalNotification('🚨 新しい課題が登録されました', `締切をチェック: ${taskName}`);
-                }, 1000); // 1秒後に通知が届く
-                // --- ここまで追加 ---
+                
+                // 🌟 ユーザーがボタンをクリックした関数内で、遅延（setTimeout）を挟まずに即座に実行する
+                sendLocalNotification('🚨 新しい課題が登録されました', `締切をチェック: ${taskName}`);
             }
         });
     </script>
