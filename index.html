@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイ・ポータル ver1.0a</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: #fff;
+            border: 2px solid #007bff;
+            color: #007bff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #007bff;
+            color: #fff;
+        }
+        .page-content {
+            display: none;
+        }
+        .page-content.active {
+            display: block;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            box-sizing: border-box;
+        }
+        select {
+            padding: 8px;
+            font-size: 1rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background: white;
+        }
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            align-self: flex-end;
+            transition: 0.2s;
+        }
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        /* 📅 本日の時間割（横並びタイムライン）用のスタイル */
+        .today-timetable-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .today-slot {
+            flex: 1;
+            min-width: 110px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 2px rgba(0,0,0,0.05);
+        }
+        /* 現在の時限の枠を目立たせる */
+        .today-slot.current-active {
+            background: #e3f2fd;
+            border-left-color: #28a745;
+        }
+        .today-slot-title {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: bold;
+        }
+        .today-slot-subject {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-top: 4px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Portal ver1.0a</h1>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div id="current-period" style="background: #007bff; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 1.1rem;">判定中...</div>
+            <div id="clock" style="font-size: 1.2rem; font-weight: bold;">00:00:00</div>
+        </div>
+    </header>
+
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="switchPage('home-page')">🏠 ホーム</button>
+        <button class="tab-btn" onclick="switchPage('timetable-page')">📅 時間割一覧</button>
+        <button class="tab-btn" onclick="switchPage('search-page')">🔍 空き教室検索</button>
+    </div>
+
+    <div id="home-page" class="page-content active">
+        <div class="grid-container">
+            
+            <div class="card" style="grid-column: span 2;">
+                <h3>📅 本日の予定</h3>
+                
+                <div id="today-timetable-container" class="today-timetable-row">
+                    </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+                <h3>🚪 いま使える空き教室</h3>
+                <p style="color: #666; font-size: 0.85rem; margin-bottom: 10px;">※現在時刻・今日の曜日で空いている教室です</p>
+                <ul id="realtime-rooms-list" style="padding-left: 20px; font-weight: bold; color: #28a745; font-size: 1.1rem; list-style: none; line-height: 1.8; display: flex; gap: 15px; flex-wrap: wrap;">
+                    <li>読み込み中...</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>🚨 課題・レポート締切</h3>
+                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <input type="text" id="todo-input" placeholder="例: レポート 7/10まで" style="flex: 1; padding: 5px;">
+                    <button id="add-todo-btn" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">追加</button>
+                </div>
+                <ul id="todo-list" style="list-style: none; padding: 0;"></ul>
+            </div>
+
+            <div class="card">
+                <h3>☀️ 天気情報</h3>
+                <p>東京の天気: <strong>晴れ 26°C</strong></p>
+                <p>湿度: 50% / 降水確率: 10%</p>
+            </div>
+
+            <div class="card">
+                <h3>🔗 クイックリンク</h3>
+                <ul>
+                    <li><a href="https://univ.aichi-pu.ac.jp/uprx/up/pk/pky001/Pky00101.xhtml" target="_blank">UNIPA</a></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>📝 クイックメモ</h3>
+                <textarea id="memo" placeholder="ここにメモを残せます（自動保存）"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div id="timetable-page" class="page-content">
+        <div class="grid-container">
+            <div class="card" style="grid-column: span 3;">
+                <h3>📅 今期の時間割一覧</h3>
+                <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                    <thead>
+                        <tr style="background-color: #007bff; color: white;">
+                            <th style="padding: 8px;">限</th>
+                            <th style="padding: 8px;">月</th>
+                            <th style="padding: 8px;">火</th>
+                            <th style="padding: 8px;">水</th>
+                            <th style="padding: 8px;">木</th>
+                            <th style="padding: 8px;">金</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px; font-weight: bold; background: #eee;">1</td>
+                            <td>ー</td>
+                            <td>情報社会の法と倫理<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
+                            <td>コンピュータリテラシ<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
+                            <td>離散数学1<br><span style="font-size:0.8rem; color:#666;">S101</span></td>
+                            <td>英語1B<br><span style="font-size:0.8rem; color:#666;">B102</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px; font-weight: bold; background: #eee;">2</td>
+                            <td>プログラミング1<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
+                            <td>英語1A<br><span style="font-size:0.8rem; color:#666;">B110</span></td>
+                            <td>コンピュータリテラシ<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
+                            <td>ー</td>
+                            <td>PBL1<br><span style="font-size:0.8rem; color:#666;">演習室5</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px; font-weight: bold; background: #eee;">3</td>
+                            <td>ー</td>
+                            <td>ー</td>
+                            <td>ー</td>
+                            <td>微分積分1<br><span style="font-size:0.8rem; color:#666;">S101</span></td>
+                            <td>バレーボール<br><span style="font-size:0.8rem; color:#666;">体育館</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px; font-weight: bold; background: #eee;">4</td>
+                            <td>多文化社会への招待C<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
+                            <td>論理回路論<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
+                            <td>ー</td>
+                            <td>線形代数1<br><span style="font-size:0.8rem; color:#666;">S201</span></td>
+                            <td>ー</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 10px; font-weight: bold; background: #eee;">5</td>
+                            <td>ー</td>
+                            <td>ー</td>
+                            <td>ー</td>
+                            <td>ー</td>
+                            <td>ー</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="search-page" class="page-content">
+        <div class="grid-container">
+            <div class="card" style="grid-column: span 2;">
+                <h3>🔍 条件を指定して空き教室を探す</h3>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px;">
+                    調べたい「曜日」と「時限」を選択すると、その時間に授業が入っていない教室がリアルタイムで一覧表示されます。
+                </p>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; background: #eee; padding: 15px; border-radius: 6px; align-items: flex-end; flex-wrap: wrap;">
+                    <div>
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">📅 曜日</label>
+                        <select id="search-day">
+                            <option value="月">月曜日</option>
+                            <option value="火">火曜日</option>
+                            <option value="水">水曜日</option>
+                            <option value="木">木曜日</option>
+                            <option value="金">金曜日</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">⏰ 時限</label>
+                        <select id="search-period">
+                            <option value="1限">1限</option>
+                            <option value="2限">2限</option>
+                            <option value="3限">3限</option>
+                            <option value="4限">4限</option>
+                            <option value="5限">5限</option>
+                        </select>
+                    </div>
+                    <button id="reset-to-now-btn" class="reset-btn">🕒 今の時間に戻す</button>
+                </div>
+
+                <h4>🚪 該当する空き教室リスト</h4>
+                <ul id="search-results-list" style="padding-left: 20px; font-weight: bold; color: #28a745; font-size: 1.2rem; list-style: none; line-height: 2;"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ページ切り替え関数
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // 全体の共有変数（現在のステータスを保持）
+        let currentGlobalDay = "月";
+        let currentGlobalPeriod = "1限";
+        let isSchoolTime = false; // いま授業時間内（月〜金、1〜5限内）かどうか
+
+        window.addEventListener('DOMContentLoaded', () => {
+            
+            // 👑 あなたが書き直してくれた個人時間割データ（ホームの今日の予定で自動判別するために使用します）
+            const myPersonalTimetable = {
+                "月": { "1限": "ー", "2限": "プログラミング1 (演習5)", "3限": "ー", "4限": "多文化社会招待C (S201)", "5限": "ー" },
+                "火": { "1限": "情報社会法倫理 (S201)", "2限": "英語1A (B110)", "3限": "ー", "4限": "論理回路論 (S201)", "5限": "ー" },
+                "水": { "1限": "リテラシ (演習5)", "2限": "リテラシ (演習5)", "3限": "ー", "4限": "ー", "5限": "ー" },
+                "木": { "1限": "離散数学1 (S101)", "2限": "ー", "3限": "微分積分1 (S101)", "4限": "線形代数1 (S201)", "5限": "ー" },
+                "金": { "1限": "英語1B (B102)", "2限": "PBL1 (演習5)", "3限": "バレーボール (体育館)", "4限": "ー", "5限": "ー" }
+            };
+
+            // 👑 あなたが書き直してくれた曜日×教室別の時間割データ（マスターデータ）
+            const universityTimetable = {
+                "月": [
+                    { room: "演習室1", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "演習室3", "1限": "空き", "2限": "使用中", "3限": "空き",  "4限": "空き", "5限": "空き" },
+                    { room: "演習室5", "1限": "使用中", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "演習室6", "1限": "空き", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "端末室1", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "端末室2", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" }
+                ],
+                "火": [
+                    { room: "演習室1", "1限": "空き", "2限": "使用中", "3限": "空き", "4限": "使用中", "5限": "空き" },
+                    { room: "演習室3", "1限": "空き", "2限": "空き", "3限": "使用中", "4限": "空き", "5限": "空き" },
+                    { room: "演習室5", "1限": "空き", "2限": "使用中", "3限": "使用中", "4限": "空き", "5限": "空き" },
+                    { room: "演習室6", "1限": "空き", "2限": "使用中", "3限": "使用中", "4限": "使用中", "5限": "空き" },
+                    { room: "端末室1", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "端末室2", "1限": "空き", "2限": "空き", "3限": "使用中", "4限": "空き", "5限": "空き" }
+                ],
+                "水": [
+                    { room: "演習室1", "1限": "空き", "2限": "空き", "3限": "使用中", "4限": "使用中", "5限": "使用中" },
+                    { room: "演習室3", "1限": "空き", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "演習室5", "1限": "使用中", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "演習室6", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "端末室1", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "端末室2", "1限": "使用中", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" }
+                ],
+                "木": [
+                    { room: "演習室1", "1限": "空きI", "2限": "使用中", "3限": "使用中", "4限": "使用中", "5限": "空き" },
+                    { room: "演習室3", "1限": "空き", "2限": "使用中", "3限": "使用中", "4限": "使用中", "5限": "空き" },
+                    { room: "演習室5", "1限": "空き", "2限": "使用中", "3限": "使用中", "4限": "使用中", "5限": "空き" },
+                    { room: "演習室6", "1限": "空き", "2限": "空き", "3限": "使用中", "4限": "使用中", "5限": "空き" },
+                    { room: "端末室1", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "端末室2", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "使用中", "5限": " some" }
+                ],
+                "金": [
+                    { room: "演習室1", "1限": "空き", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "演習室3", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "演習室5", "1限": "空き", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "演習室6", "1限": "空き", "2限": "使用中", "3限": "空き", "4限": "空き", "5限": "空き" },
+                    { room: "端末室1", "1限": "空き", "2限": "空き", "3限": "使用中", "4限": "使用中", "5限": "空き" },
+                    { room: "端末室2", "1限": "空き", "2限": "空き", "3限": "空き", "4限": "使用中", "5限": "使用中" }
+                ],
+            };
+
+            // 1. 時計・ヘッダー時限・ホームの予定一覧と空き教室更新
+            function updateHeaderAndRealtimeRooms() {
+                const now = new Date();
+                
+                // 時計
+                const timeString = now.toLocaleTimeString('ja-JP');
+                document.getElementById('clock').textContent = timeString;
+
+                // 時限判定
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const currentMinutes = hours * 60 + minutes;
+               
+                const schedule = [
+                    { period: "1限", start: "8:50", end: "10:20" },
+                    { period: "2限", start: "10:30", end: "12:00" },
+                    { period: "3限", start: "12:50", end: "14:20" },
+                    { period: "4限", start: "14:30", end: "16:00" },
+                    { period: "5限", start: "16:10", end: "17:40" }
+                ];
+                let currentStatus = "授業時間外";
+                
+                for (const slot of schedule) {
+                    const [startH, startM] = slot.start.split(':').map(Number);
+                    const [endH, endM] = slot.end.split(':').map(Number);
+
+                    const startTotal = startH * 60 + startM;
+                    const endTotal = endH * 60 + endM;
+                    if (currentMinutes >= startTotal && currentMinutes <= endTotal) {
+                        currentStatus = slot.period;
+                        break;
+                    }
+                }
+                document.getElementById('current-period').textContent = `現在: ${currentStatus}`;
+
+                // 曜日取得
+                const dayLabels = ["日", "月", "火", "水", "木", "金", "土"];
+                const todayLabel = dayLabels[now.getDay()]; 
+                
+                // グローバル変数に「今の正しい日時」を記憶しておく
+                currentGlobalDay = todayLabel;
+                currentGlobalPeriod = currentStatus;
+                
+                // 授業時間内（月〜金 かつ 1〜5限）かどうかの判定
+                if (todayLabel !== "日" && todayLabel !== "土" && currentStatus !== "授業時間外") {
+                    isSchoolTime = true;
+                } else {
+                    isSchoolTime = false;
+                }
+
+                // 👑 ホーム画面に「今日の時間割」を生成して表示
+                const todayTimetableContainer = document.getElementById('today-timetable-container');
+                if (todayLabel === "日" || todayLabel === "土") {
+                    todayTimetableContainer.innerHTML = `<p style="color:#666; margin:0;">本日は休日（${todayLabel}曜日）のため、授業はありません。</p>`;
+                } else {
+                    const todayClasses = myPersonalTimetable[todayLabel];
+                    if (todayClasses) {
+                        const periods = ["1限", "2限", "3限", "4限", "5限"];
+                        let htmlString = "";
+                        
+                        periods.forEach(p => {
+                            // もしいまその時限なら、枠の色を変えるクラスを追加
+                            const isActiveClass = (p === currentStatus) ? "current-active" : "";
+                            const subject = todayClasses[p] || "ー";
+                            
+                            htmlString += `
+                                <div class="today-slot ${isActiveClass}">
+                                    <div class="today-slot-title">${p}</div>
+                                    <div class="today-slot-subject">${subject}</div>
+                                </div>
+                            `;
+                        });
+                        todayTimetableContainer.innerHTML = htmlString;
+                    }
+                }
+
+                // ホーム画面の「リアルタイム空き教室」反映
+                const realtimeRoomsList = document.getElementById('realtime-rooms-list');
+                if (!isSchoolTime) {
+                    realtimeRoomsList.innerHTML = `<li style="color: #666; font-weight: normal;">💤 現在は授業時間外（または休日）のため、すべての教室が利用可能か閉館しています。</li>`;
+                } else {
+                    const todaysRooms = universityTimetable[todayLabel];
+                    if (todaysRooms) {
+                        const emptyRooms = todaysRooms.filter(room => room[currentStatus] === "空き" || room[currentStatus] === "空きI");
+                        if (emptyRooms.length > 0) {
+                            realtimeRoomsList.innerHTML = emptyRooms.map(r => `<li style="background:#e8f5e9; padding:4px 10px; border-radius:4px; border:1px solid #c8e6c9;">🟢 ${r.room}</li>`).join('');
+                        } else {
+                            realtimeRoomsList.innerHTML = `<li style="color: #dc3545;">❌ 現在空いている教室はありません</li>`;
+                        }
+                    }
+                }
+            }
+
+            // 検索ページ用の要素
+            const selectDay = document.getElementById('search-day');
+            const selectPeriod = document.getElementById('search-period');
+            const searchResultsList = document.getElementById('search-results-list');
+            const resetBtn = document.getElementById('reset-to-now-btn');
+
+            // 2. 検索用のメイン関数
+            function searchEmptyRooms() {
+                const chosenDay = selectDay.value;       
+                const chosenPeriod = selectPeriod.value; 
+
+                const todaysRooms = universityTimetable[chosenDay];
+                if (todaysRooms) {
+                    const emptyRooms = todaysRooms.filter(room => room[chosenPeriod] === "空き" || room[chosenPeriod] === "空きI");
+                    if (emptyRooms.length > 0) {
+                        searchResultsList.innerHTML = emptyRooms.map(r => `<li>🟢 ${r.room}</li>`).join('');
+                    } else {
+                        searchResultsList.innerHTML = `<li style="color: #dc3545;">❌ 指定された時間は空いている教室がありません</li>`;
+                    }
+                }
+            }
+
+            // 検索ボックスの「初期選択」を設定する関数
+            function setInitialSearchSelection() {
+                if (isSchoolTime) {
+                    selectDay.value = currentGlobalDay;
+                    selectPeriod.value = currentGlobalPeriod;
+                } else {
+                    selectDay.value = "月";
+                    selectPeriod.value = "1限";
+                }
+                searchEmptyRooms();
+            }
+
+            // セレクトボックスの変更イベント
+            selectDay.addEventListener('change', searchEmptyRooms);
+            selectPeriod.addEventListener('change', searchEmptyRooms);
+            
+            // 「今に戻す」ボタンのクリックイベント
+            resetBtn.addEventListener('click', () => {
+                setInitialSearchSelection();
+            });
+
+            // 初回実行
+            updateHeaderAndRealtimeRooms(); 
+            setInitialSearchSelection();     
+
+            // 毎秒時計などを更新するタイマー
+            setInterval(updateHeaderAndRealtimeRooms, 1000);
+
+            // メモ機能
+            const memoArea = document.getElementById('memo');
+            memoArea.value = localStorage.getItem('portal_memo') || '';
+            memoArea.addEventListener('input', () => {
+                localStorage.setItem('portal_memo', memoArea.value);
+            });
+
+            // ToDo機能
+            const todoInput = document.getElementById('todo-input');
+            const addTodoBtn = document.getElementById('add-todo-btn');
+            const todoList = document.getElementById('todo-list');
+            let todos = JSON.parse(localStorage.getItem('portal_todos')) || [];
+
+            function renderTodos() {
+                todoList.innerHTML = '';
+                todos.forEach((todo, index) => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.justify = 'space-between';
+                    li.style.marginBottom = '8px';
+                    li.innerHTML = `
+                        <span>📝 ${todo}</span>
+                        <button onclick="deleteTodo(${index})" style="background:#dc3545; color:white; border:none; padding:2px 6px; border-radius:4px; cursor:pointer;">完了</button>
+                    `;
+                    todoList.appendChild(li);
+                });
+            }
+
+            addTodoBtn.addEventListener('click', () => {
+                if (todoInput.value.trim() !== '') {
+                    todos.push(todoInput.value);
+                    localStorage.setItem('portal_todos', JSON.stringify(todos));
+                    todoInput.value = '';
+                    renderTodos();
+                }
+            });
+
+            window.deleteTodo = function(index) {
+                todos.splice(index, 1);
+                localStorage.setItem('portal_todos', JSON.stringify(todos));
+                renderTodos();
+            }
+            renderTodos();
+        });
+    </script>
+</body>
+</html>
