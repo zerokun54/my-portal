@@ -178,6 +178,13 @@
 
     <div id="home-page" class="page-content active">
         <div class="grid-container">
+            <!-- 🚨 テスト用のボタンをカードとして配置 -->
+            <div class="card" style="text-align: center;">
+                <h3>🔔 通知の単体テスト</h3>
+                <button onclick="sendLocalNotification('テストタイトル', 'これはテスト通知です！')" style="background: #ffc107; color: #000; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                    今すぐ通知をテスト
+                </button>
+            </div>
             
             <div class="card card-span-2">
                 <h3>📅 本日の予定</h3>
